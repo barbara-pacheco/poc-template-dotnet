@@ -1,0 +1,29 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# .NET secrets (dotnet user-secrets keeps these outside the repo already,
+# this is a defensive extra in case something writes a local file)
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db
