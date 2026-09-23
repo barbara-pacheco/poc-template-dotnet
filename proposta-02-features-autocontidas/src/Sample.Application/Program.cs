@@ -1,5 +1,4 @@
 using Sample.Application.Configuration;
-using Sample.Services;
 using Sample.Shared.Modules;
 
 var builder = WebApplication.CreateBuilder(args);

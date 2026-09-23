@@ -1,12 +1,20 @@
 using System.Text.Json.Serialization;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Sample.Application.Middleware;
+using Sample.Services.Commons.Context;
+using Sample.Shared.Behaviors;
+using Sample.Shared.Modules;
 
 namespace Sample.Application.Configuration;
 
 /// <summary>
-/// Composition root do host HTTP: Problem Details, o exception handler
-/// global, JSON e Swagger. Chamado uma vez no Program.cs.
+/// Composition root: tudo que é configuração de DI fica aqui. AddApplication
+/// registra o host HTTP (Problem Details, exception handler global, JSON,
+/// Swagger); AddServices registra o que é comum a todas as features (Mediator
+/// com o pipeline de validação, validadores, DbContext) e liga o Module.cs de
+/// cada feature. Chamados uma vez no Program.cs.
 /// </summary>
 public static class IoC
 {
@@ -17,6 +25,16 @@ public static class IoC
 
         AddJson(services);
         AddSwagger(services);
+
+        return services;
+    }
+
+    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        AddMediator(services);
+        AddDbContext(services, configuration);
+
+        services.AddModules(typeof(SampleDbContext).Assembly);
 
         return services;
     }
@@ -56,5 +74,27 @@ public static class IoC
                 { new OpenApiSecuritySchemeReference("Bearer", document, null), [] }
             });
         });
+    }
+
+    private static void AddMediator(IServiceCollection services)
+    {
+        services.AddMediator(options =>
+        {
+            options.ServiceLifetime = ServiceLifetime.Scoped;
+            options.PipelineBehaviors = [typeof(ValidationBehavior<,>)];
+        });
+
+        services.AddValidatorsFromAssembly(typeof(SampleDbContext).Assembly);
+    }
+
+    private static void AddDbContext(IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Default")
+            ?? throw new InvalidOperationException("Connection string 'Default' is not configured.");
+
+        services.AddDbContext<SampleDbContext>(options =>
+            options
+                .UseNpgsql(connectionString)
+                .UseSnakeCaseNamingConvention());
     }
 }

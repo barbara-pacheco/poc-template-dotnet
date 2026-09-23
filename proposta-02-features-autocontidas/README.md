@@ -21,7 +21,8 @@ A proposta busca combinar duas propriedades: **coesão por funcionalidade**, man
 src/
 ├── Sample.Application/                  host e composition root
 │   ├── Configuration/
-│   │   ├── IoC.cs                        Problem Details, JSON, Swagger
+│   │   ├── IoC.cs                        DI do host (Problem Details, JSON, Swagger) e do
+│   │   │                                 Services (Mediator, validadores, DbContext, Modules)
 │   │   └── SwaggerExtensions.cs          Swagger só em Development (/swagger)
 │   ├── Middleware/
 │   │   └── GlobalExceptionHandler.cs     exceção → Problem Details (RFC 9457)
@@ -41,7 +42,6 @@ src/
 │   │       │   ├── GetById/              Query, Handler, Response
 │   │       │   └── Discontinue/          Command, Handler
 │   │       └── Module.cs                 DI da feature + rotas HTTP
-│   └── IoC.cs                            Mediator, validadores, DbContext, liga os Modules
 └── Sample.Shared/                       capacidades transversais
     ├── Behaviors/ValidationBehavior.cs   valida Command/Query antes do handler
     ├── Errors/                           DomainException (400/422/409), ErrorOr → HTTP
